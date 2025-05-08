@@ -8,4 +8,3 @@ public class EmployeeRequestDTO {
     private String role;
     private double salary;
 }
-
