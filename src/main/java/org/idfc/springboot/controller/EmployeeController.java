@@ -1,5 +1,7 @@
 package org.idfc.springboot.controller;
 
+import org.idfc.springboot.dto.EmployeeRequestDTO;
+import org.idfc.springboot.dto.EmployeeResponseDTO;
 import org.idfc.springboot.model.Employee;
 import org.idfc.springboot.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,24 +17,40 @@ public class EmployeeController {
     private EmployeeService service;
 
     @GetMapping
-    public List<Employee> getAll() {
-        return service.getAll();
+    public List<EmployeeResponseDTO> getAll() {
+        return service.getAll().stream()
+                .map(e -> new EmployeeResponseDTO(e.getId(), e.getName(), e.getRole(), e.getSalary()))
+                .toList();
     }
 
     @GetMapping("/{id}")
-    public Employee getById(@PathVariable String id) {
-        return service.getById(id);
+    public EmployeeResponseDTO getById(@PathVariable String id) {
+        Employee e = service.getById(id);
+        return new EmployeeResponseDTO(e.getId(), e.getName(), e.getRole(), e.getSalary());
     }
+
 
     @PostMapping
-    public Employee create(@RequestBody Employee e) {
-        return service.save(e);
+    public EmployeeResponseDTO create(@RequestBody EmployeeRequestDTO dto) {
+        Employee e = new Employee();
+        e.setName(dto.getName());
+        e.setRole(dto.getRole());
+        e.setSalary(dto.getSalary());
+
+        Employee saved = service.save(e);
+        return new EmployeeResponseDTO(saved.getId(), saved.getName(), saved.getRole(), saved.getSalary());
     }
 
+
     @PutMapping("/{id}")
-    public Employee update(@PathVariable String id, @RequestBody Employee e) {
+    public EmployeeResponseDTO update(@PathVariable String id, @RequestBody EmployeeRequestDTO dto) {
+        Employee e = new Employee();
         e.setId(id);
-        return service.save(e);
+        e.setName(dto.getName());
+        e.setRole(dto.getRole());
+        e.setSalary(dto.getSalary());
+        Employee saved = service.save(e);
+        return new EmployeeResponseDTO(saved.getId(), saved.getName(), saved.getRole(), saved.getSalary());
     }
 
     @DeleteMapping("/{id}")
@@ -41,7 +59,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/role/{role}")
-    public List<Employee> getByRole(@PathVariable String role) {
-        return service.getByRole(role);
+    public List<EmployeeResponseDTO> getByRole(@PathVariable String role) {
+        return service.getByRole(role).stream().map(e -> new EmployeeResponseDTO(e.getId(), e.getName(), e.getRole(), e.getSalary())).toList();
     }
 }
