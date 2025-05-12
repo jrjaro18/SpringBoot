@@ -1,11 +1,13 @@
 package org.idfc.springboot.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.idfc.springboot.dto.EmployeeRequestDTO;
+import org.idfc.springboot.dto.EmployeeResponseDTO;
+import org.idfc.springboot.kafka.KafkaProducerService;
 import org.idfc.springboot.model.Employee;
 import org.idfc.springboot.service.EmployeeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -16,7 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -29,19 +31,26 @@ public class EmployeeControllerTest {
     @MockitoBean
     private EmployeeService service;
 
+    @MockitoBean
+    private KafkaProducerService producerService;
+
     @Autowired
     private ObjectMapper objectMapper;
 
-    private Employee sample;
+    private EmployeeRequestDTO requestDto;
+    private Employee employee;
+    private EmployeeResponseDTO responseDto;
 
     @BeforeEach
     public void setup() {
-        sample = new Employee("123", "Alice", "Developer", 90000);
+        requestDto = new EmployeeRequestDTO("Alice", "Developer", 90000.0, "alice123@gmail.com");
+        employee = new Employee("123", "Alice", "Developer","alice123@gmail.com", 90000.0);
+        responseDto = new EmployeeResponseDTO("123", "Alice", "Developer", 90000.0, "alice123@gmail.com");
     }
 
     @Test
     public void testGetAll() throws Exception {
-        List<Employee> employees = Arrays.asList(sample);
+        List<Employee> employees = Arrays.asList(employee);
         Mockito.when(service.getAll()).thenReturn(employees);
 
         mockMvc.perform(get("/api/employees"))
@@ -52,7 +61,7 @@ public class EmployeeControllerTest {
 
     @Test
     public void testGetById() throws Exception {
-        Mockito.when(service.getById("123")).thenReturn(sample);
+        Mockito.when(service.getById("123")).thenReturn(employee);
 
         mockMvc.perform(get("/api/employees/123"))
                 .andExpect(status().isOk())
@@ -62,23 +71,27 @@ public class EmployeeControllerTest {
 
     @Test
     public void testCreate() throws Exception {
-        Mockito.when(service.save(any(Employee.class))).thenReturn(sample);
+        Mockito.when(service.containsEmail(requestDto.getEmail())).thenReturn(false);
+        Mockito.when(service.save(any(Employee.class))).thenReturn(employee);
 
         mockMvc.perform(post("/api/employees")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(sample)))
+                        .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Alice"));
     }
 
     @Test
     public void testUpdate() throws Exception {
-        sample.setName("Updated");
-        Mockito.when(service.save(any(Employee.class))).thenReturn(sample);
+        Employee updated = new Employee("123", "Updated", "Developer", "alice123@gmail.com", 90000.0);
+        EmployeeRequestDTO updatedDto = new EmployeeRequestDTO("Updated", "Developer", 90000.0, "alice123@gmail.com");
+
+        Mockito.when(service.getById("123")).thenReturn(employee);
+        Mockito.when(service.save(any(Employee.class))).thenReturn(updated);
 
         mockMvc.perform(put("/api/employees/123")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(sample)))
+                        .content(objectMapper.writeValueAsString(updatedDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Updated"));
     }
@@ -93,7 +106,7 @@ public class EmployeeControllerTest {
 
     @Test
     public void testGetByRole() throws Exception {
-        List<Employee> employees = Arrays.asList(sample);
+        List<Employee> employees = Arrays.asList(employee);
         Mockito.when(service.getByRole("Developer")).thenReturn(employees);
 
         mockMvc.perform(get("/api/employees/role/Developer"))

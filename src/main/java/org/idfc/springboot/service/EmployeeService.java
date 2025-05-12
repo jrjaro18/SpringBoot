@@ -44,4 +44,9 @@ public class EmployeeService {
         }
         return employees;
     }
+
+    public boolean containsEmail(String email) {
+        List<Employee> employees = repo.findByEmail(email);
+        return !employees.isEmpty();
+    }
 }

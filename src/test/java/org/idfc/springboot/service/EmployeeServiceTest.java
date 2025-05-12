@@ -27,7 +27,7 @@ class EmployeeServiceTest {
 
     @Test
     void testGetAll() {
-        List<Employee> mockList = List.of(new Employee("1", "John", "Manager", 30000.99));
+        List<Employee> mockList = List.of(new Employee("1", "John", "Manager", "john@gmail.com",30000.99));
         when(employeeRepository.findAll()).thenReturn(mockList);
 
         List<Employee> result = employeeService.getAll();
@@ -37,7 +37,7 @@ class EmployeeServiceTest {
 
     @Test
     void testGetById_Exists() {
-        Employee employee = new Employee("1", "Jane", "Developer", 30000.99);
+        Employee employee = new Employee("1", "Jane", "Developer", "jane@gmail.com", 30000.99);
         when(employeeRepository.findById("1")).thenReturn(Optional.of(employee));
 
         Employee result = employeeService.getById("1");
@@ -52,7 +52,7 @@ class EmployeeServiceTest {
 
     @Test
     void testSave_ValidEmployee() {
-        Employee employee = new Employee("2", "Raj", "QA", 30000.99);
+        Employee employee = new Employee("2", "Raj", "QA", "raj@gmail.com",30000.99);
         when(employeeRepository.save(employee)).thenReturn(employee);
 
         Employee saved = employeeService.save(employee);
@@ -82,7 +82,7 @@ class EmployeeServiceTest {
 
     @Test
     void testGetByRole_Found() {
-        List<Employee> list = List.of(new Employee("3", "Ali", "DevOps", 30000.99));
+        List<Employee> list = List.of(new Employee("3", "Ali", "DevOps","ali@gmail.com", 30000.99));
         when(employeeRepository.findByRole("DevOps")).thenReturn(list);
 
         List<Employee> result = employeeService.getByRole("DevOps");

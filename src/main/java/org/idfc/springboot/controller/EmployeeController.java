@@ -1,5 +1,6 @@
 package org.idfc.springboot.controller;
 
+import jakarta.validation.Valid;
 import org.idfc.springboot.dto.EmployeeRequestDTO;
 import org.idfc.springboot.dto.EmployeeResponseDTO;
 import org.idfc.springboot.kafka.KafkaProducerService;
@@ -35,8 +36,14 @@ public class EmployeeController {
 
 
     @PostMapping
-    public EmployeeResponseDTO create(@RequestBody EmployeeRequestDTO dto) {
+    public EmployeeResponseDTO create(@RequestBody @Valid EmployeeRequestDTO dto) {
+        boolean isPresent = service.containsEmail(dto.getEmail());
+        if (isPresent) {
+            throw new IllegalArgumentException("Email already exists");
+        }
+
         Employee e = new Employee();
+
         e.setName(dto.getName());
         e.setRole(dto.getRole());
         e.setSalary(dto.getSalary());
@@ -49,7 +56,7 @@ public class EmployeeController {
 
 
     @PutMapping("/{id}")
-    public EmployeeResponseDTO update(@PathVariable String id, @RequestBody EmployeeRequestDTO dto) {
+    public EmployeeResponseDTO update(@PathVariable String id, @RequestBody @Valid EmployeeRequestDTO dto) {
         Employee e = service.getById(id);
 
         e.setId(id);

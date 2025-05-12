@@ -14,4 +14,3 @@ public class KafkaProducerService {
         kafkaTemplate.send("employee.created", employee);
     }
 }
-

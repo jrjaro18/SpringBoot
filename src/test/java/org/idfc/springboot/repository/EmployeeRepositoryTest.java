@@ -26,7 +26,7 @@ class EmployeeRepositoryTest {
 
     @Test
     void testSaveAndFindById() {
-        Employee emp = new Employee("1", "Amit", "Backend", 30000.99);
+        Employee emp = new Employee("1", "Amit", "Backend", "amit@gmail.com", 30000.99);
         repository.save(emp);
 
         var result = repository.findById("1");
@@ -36,9 +36,9 @@ class EmployeeRepositoryTest {
 
     @Test
     void testFindByRole() {
-        repository.save(new Employee("2", "Neha", "DevOps",30000.99));
-        repository.save(new Employee("3", "Rahul", "DevOps", 30000.99));
-        repository.save(new Employee("4", "Meena", "QA", 30000.99));
+        repository.save(new Employee("2", "Neha", "DevOps", "neha@gmail.com", 30000.99));
+        repository.save(new Employee("3", "Rahul", "DevOps", "rahul@gmail.com",30000.99));
+        repository.save(new Employee("4", "Meena", "QA", "meena@gmail.com", 30000.99));
 
         List<Employee> devOps = repository.findByRole("DevOps");
         assertEquals(2, devOps.size());
@@ -46,7 +46,7 @@ class EmployeeRepositoryTest {
 
     @Test
     void testDeleteById() {
-        Employee emp = new Employee("5", "Sonal", "HR", 30000.99);
+        Employee emp = new Employee("5", "Sonal", "HR", "sonal@gmail.com",30000.99);
         repository.save(emp);
         repository.deleteById("5");
 
@@ -55,8 +55,8 @@ class EmployeeRepositoryTest {
 
     @Test
     void testFindAll() {
-        repository.save(new Employee("6", "Ravi", "Frontend", 30000.99));
-        repository.save(new Employee("7", "Kiran", "Frontend", 30000.99));
+        repository.save(new Employee("6", "Ravi", "Frontend", "ravi@gmail.com",30000.99));
+        repository.save(new Employee("7", "Kiran", "Frontend", "kiran@gmail.com",30000.99));
 
         List<Employee> all = repository.findAll();
         assertTrue(all.size() >= 2);
